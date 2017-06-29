@@ -1,0 +1,117 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+//This was made using Unity Libraries
+//This is the main class of the genetic algorithm used to improve the energy efficiency of an individual based on it's survival time
+//The energy decay speed can't be less than one
+//Each individual starts with 200 energy
+//Each second,the individual loses the decay value from their total energy
+public class Main : MonoBehaviour {
+    int GenerationCount = 0;
+    //Counts the generation that we're in
+    float RandomN;
+    //Used to generate a randomic number
+    public float ReproduceTime;
+    //Calculates the current time;
+    public static float BestSurvivor;
+    //Stores the best survivor's survival time
+    public static float BestSpeed;
+    //Stores the best survivor's speed
+    public static float SecondSpeed;
+    //Stores the second best survivor's speed
+    public static float SecondSurvivor;
+    //Stores the second best survivor's survival time
+    public List<GameObject> Population;
+    //A list of objects (individuals) that determines the total population (Dead and alive)
+    public GameObject IndividualObject;
+    //The object that represents the Individual
+
+	
+	void Start () {
+        for (int i = 0; i < 5; i++)
+        {
+            Population.Add(GameObject.Find("Individual"));
+            Genetics Genes = Population[GenerationCount].GetComponent<Genetics>();
+            Genes.Speed = Random.Range(1, 100);
+            Instantiate(Population[GenerationCount]);
+            GenerationCount++;
+        }
+        //The starting population of 5 individuals
+    }
+	
+	
+	void Update () {
+        print("Generation:" + GenerationCount);
+        ReproduceTime = ReproduceTime +1 * Time.deltaTime;
+        if (ReproduceTime >= 5)
+        {
+            ReproduceTime = 0;
+            Reproduce(BestSpeed, SecondSpeed);
+        }
+        //Each 5 seconds,the top 2 individuals reproduce
+    }
+
+    void Reproduce(float Best, float Second)
+    {
+        RandomN = Random.value;
+        if(RandomN <= 0.5)
+        {
+            Population.Add(IndividualObject);
+            Genetics Genes = Population[GenerationCount].GetComponent<Genetics>();
+            Genes.Speed = Best;
+            MutationChance();
+            Instantiate(Population[GenerationCount]);
+            GenerationCount++;
+        }
+        else
+        {
+            Population.Add(IndividualObject);
+            Genetics Genes = Population[GenerationCount].GetComponent<Genetics>();
+            Genes.Speed = Second;
+            MutationChance();
+            Instantiate(Population[GenerationCount]);
+            GenerationCount++;
+        }
+        //The children have a 50/50 chance of getting each parent's genes and a 10% chance to get a mutation
+    }
+    void MutationChance()
+    {
+        RandomN = Random.value;
+        if (RandomN <= 0.1)
+        {
+            RandomN = Random.value;
+            if (RandomN >= 0.1 && RandomN <= 0.2)
+            {
+                Genetics Genes = Population[GenerationCount].GetComponent<Genetics>();
+                Genes.Speed = Genes.Speed + Random.Range(1, 100);
+            }
+            else if (RandomN > 0.2 && RandomN <= 0.3)
+            {
+                Genetics Genes = Population[GenerationCount].GetComponent<Genetics>();
+                Genes.Speed = BestSpeed + Random.value;
+            }
+            else if (RandomN > 0.3 && RandomN <= 0.4)
+            {
+                Genetics Genes = Population[GenerationCount].GetComponent<Genetics>();
+                Genes.Speed = BestSpeed - Random.value;
+            }
+            else if (RandomN > 0.4 && RandomN <= 0.5)
+            {
+                Genetics Genes = Population[GenerationCount].GetComponent<Genetics>();
+                Genes.Speed = SecondSpeed + Random.value;
+            }
+            else if (RandomN > 0.5 && RandomN <= 0.6)
+            {
+                Genetics Genes = Population[GenerationCount].GetComponent<Genetics>();
+                Genes.Speed = SecondSpeed - Random.value;
+            }
+            else
+            {
+                Genetics Genes = Population[GenerationCount].GetComponent<Genetics>();
+                Genes.Speed = Random.Range(SecondSpeed, BestSpeed);
+            }
+        }
+        //Whenever the mutation chance are lower than 10%,the children have a 10% chance of getting one of the five mutations and a 50%
+        //chance of getting a crossover of his parent's genes
+    }
+}
