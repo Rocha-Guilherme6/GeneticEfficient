@@ -1,0 +1,43 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+//This was made using Unity3D libraries
+public class Genetics : MonoBehaviour {
+    public float CurrentTime;
+    public float Speed;
+    public float Energy;
+    void Start () {
+        Energy = 200;
+        while (Speed <= 0)
+        {
+            Speed++;
+        }
+        //The speed can't be lower than 1
+	}
+	
+
+	void Update () {
+        CurrentTime = CurrentTime + 1*Time.deltaTime;
+        //calculates the survival time
+        Energy = Energy - Speed*Time.deltaTime;
+        //The energy depletion rate
+        if (CurrentTime > Main.BestSurvivor)
+        {
+            Main.BestSurvivor = CurrentTime;
+            Main.BestSpeed = Speed;
+        }
+        //whenever the individual's survival time is better than the highest survival time,it becomes the top individual
+        else if (Main.SecondSurvivor < CurrentTime && CurrentTime < Main.BestSurvivor)
+        {
+            Main.SecondSurvivor = CurrentTime;
+            Main.SecondSpeed = Speed;
+        }
+        //otherwise,if their time is the second better time,it becomes the second top individual
+        if (Energy <= 0)
+        {
+            Destroy(this.gameObject);
+        }
+        //when their energy reaches 0,they are destroyed
+	}
+
+}
